@@ -1,0 +1,39 @@
+SERVICES = {
+  'vpacS' => {
+    ip: '192.168.56.110', 
+    ports: {}
+  },
+  'vpacSW' =>{
+    ip: '192.168.56.111',
+    ports: {}
+  }
+}
+
+# Boxes allready have the VirtualBox provider as default
+Vagrant.configure(2) do |config|
+  config.vm.box = "hashicorp-education/ubuntu-24-04"
+  config.vm.box_version = "0.1.0"
+  config.vm.provider "virtualbox"
+  # Server
+    config.vm.define "vpacS" do |control|
+        control.vm.hostname = "vpacS"
+        control.vm.network "private_network", ip: SERVICES['vpacS'][:ip]
+        control.vm.provider "virtualbox" do |v|
+              v.customize ["modifyvm", :id, "--name", "vpacS"]
+              v.memory = 1024
+              v.cpus = 1
+      end
+      control.vm.provision "shell", path: "scripts/config_server.sh"
+    end
+  # Worker
+    config.vm.define "vpacSW" do |control|
+	control.vm.hostname = "vpacSW"
+	control.vm.network "private_network", ip: SERVICES['vpacSW'][:ip]
+	control.vm.provider "virtualbox" do |v|
+		v.customize ["modifyvm", :id, "--name", "vpacSW"]
+		v.memory = 1024
+		v.cpus = 1
+        end
+        control.vm.provision "shell", path: "scripts/config_worker.sh", args:["192.168.56.10"]
+      end
+end
