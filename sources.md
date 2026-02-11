@@ -3,6 +3,7 @@
 - [machine_settings](https://developer.hashicorp.com/vagrant/docs/vagrantfile/machine_settings)
 - [Network options](https://docs.k3s.io/networking/basic-network-options)
 - [VirtualBox Configuration](https://developer.hashicorp.com/vagrant/docs/providers/virtualbox/configuration)
+- [Ingress Example for k3s](https://www.virtualizationhowto.com/2022/05/traefik-ingress-example-yaml-and-setup-in-k3s/)
 
 You can use both `INSTALL_K3S_EXEC=` or `-s -` to pass flags to k3s on installation. See example:
 
@@ -20,3 +21,9 @@ To pass envirnments to the script on launch of a VM on Vagrant you can do the fo
 `server_config.vm.provision "shell", path: "script.sh", env: {"KEY" => "VALUE"}`
 
 This is similair to `export KEY=VALUE` in `bash`.
+
+---
+
+There are two ways to fetch the websites...
+
+One is simply `curl http://app1.com`, the other one is `curl -H "Host: app1.com" http://192.168.56.110`
