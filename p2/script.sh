@@ -3,8 +3,7 @@
 apt-get update
 apt-get install -y apt-transport-https ca-certificates curl gnupg
 
-curl -sfL https://get.k3s.io | sh -s - \
-	--node-ip=192.168.56.110 --advertise-address=192.168.56.110
+curl -sfL https://get.k3s.io | sh -s - --node-ip=192.168.56.110 
 
 sudo kubectl apply -f /vagrant/services/app1.yml
 sudo kubectl apply -f /vagrant/services/ingress.yml
