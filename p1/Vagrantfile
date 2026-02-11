@@ -1,0 +1,46 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+if File.exist?('.env.local')
+  File.readlines('.env.local').each do |line|
+    line = line.strip
+    next if line.empty? || line.start_with?('#') # Skip comments
+
+    key, value = line.split('=', 2)
+    ENV[key] = value if key && value
+  end
+else
+  puts "Warning: env.local file not found!"
+  exit(1)
+end
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp-education/ubuntu-24-04"
+  config.vm.box_version = "0.1.0"
+
+  config.vm.define :server do |server_config|
+    server_config.vm.network "private_network", ip: "192.168.56.110"
+    server_config.vm.hostname = "xvoorvaaS"
+    server_config.vm.provision "shell", path: "script.sh", env: {"TOKEN" => ENV['TOKEN'], "CONTROLLER" => "true"}
+
+    server_config.vm.provider "virtualbox" do |vb|
+      vb.name = "xvoorvaaS"
+      vb.memory = "2048"
+      vb.cpus = "1"
+      vb.linked_clone = true
+    end
+  end
+
+  config.vm.define :worker do |worker_config|
+    worker_config.vm.network "private_network", ip: "192.168.56.111"
+    worker_config.vm.hostname = "xvoorvaaSW"
+    worker_config.vm.provision "shell", path: "script.sh", env: {"TOKEN" => ENV['TOKEN']}
+
+    worker_config.vm.provider "virtualbox" do |vb|
+      vb.name = "xvoorvaaSW"
+      vb.memory = "2048"
+      vb.cpus = "1"
+      vb.linked_clone = true
+    end
+  end
+end
