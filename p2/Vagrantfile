@@ -1,19 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-if File.exist?('.env.local')
-  File.readlines('.env.local').each do |line|
-    line = line.strip
-    next if line.empty? || line.start_with?('#') # Skip comments
-
-    key, value = line.split('=', 2)
-    ENV[key] = value if key && value
-  end
-else
-  puts "Warning: env.local file not found!"
-  exit(1)
-end
-
 Vagrant.configure("2") do |config|
   config.vm.box = "generic/debian12"
   config.vm.box_version = "4.3.12"
