@@ -25,7 +25,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: app-two 
+            name: app-two-service
             port:
               number: 80
 
@@ -36,6 +36,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: app-three 
+            name: app-three-service
             port:
               number: 80
