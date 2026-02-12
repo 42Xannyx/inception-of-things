@@ -1,9 +1,7 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: ConfigMap
 metadata:
-  name: app-one
-  labels:
-    app: app-one
+  name: app-one-html
 data:
   index.html: |
     <html>
@@ -11,6 +9,45 @@ data:
     This is App 1
     </body>
     </html>
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-two-html
+data:
+
+  index.html: |
+    <html>
+    <body>
+    This is App 2
+    </body>
+    </html>
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-three-html
+data:
+
+  index.html: |
+    <html>
+    <body>
+    This is App 3
+    </body>
+    </html>
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-one
+  labels:
+    app: app-one
 spec:
   replicas: 1
   selector:
@@ -42,13 +79,6 @@ metadata:
   name: app-two
   labels:
     app: app-two
-data:
-  index.html: |
-    <html>
-    <body>
-    This is App 2
-    </body>
-    </html>
 spec:
   replicas: 3
   selector:
@@ -80,13 +110,6 @@ metadata:
   name: app-three
   labels:
     app: app-three
-data:
-  index.html: |
-    <html>
-    <body>
-    This is App 3
-    </body>
-    </html>
 spec:
   replicas: 1
   selector:
