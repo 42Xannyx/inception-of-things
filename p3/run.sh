@@ -53,9 +53,9 @@ curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
 k3d cluster delete argocluster
 
-k3d cluster create --config cluster.yml
+k3d cluster create --config k3d-cluster.yml
 kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-kubectl wait --for=condition=available --timeout=120s deployment --all
+kubectl replace -n argocd --force -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl wait --for=condition=available --timeout=120s deployment --all -n argocd
 
 kubectl port-forward svc/argocd-server -n argocd 8080:443
