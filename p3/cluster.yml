@@ -8,7 +8,7 @@ spec:
     namespace: dev
     server: https://kubernetes.default.svc
   source:
-    path: confs
+    path: .
     repoURL: https://github.com/42xannyx/inception-of-things.git
     targetRevision: HEAD
     directory:
