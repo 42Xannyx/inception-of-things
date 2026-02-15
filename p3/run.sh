@@ -52,10 +52,17 @@ sudo usermod -aG docker $USER
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
 k3d cluster delete argocluster
-
 k3d cluster create --config k3d-cluster.yml
+
 kubectl create namespace argocd
 kubectl replace -n argocd --force -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 kubectl wait --for=condition=available --timeout=120s deployment --all -n argocd
+kubectl port-forward svc/argocd-server -n argocd 8080:443 &
 
-kubectl port-forward svc/argocd-server -n argocd 8080:443
+kubectl create namespace dev
+kubectl apply -f cluster.yml
+
+PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+
+echo "Username: admin"
+echo "Password: $PASSWORD"
