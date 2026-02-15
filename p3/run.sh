@@ -36,7 +36,7 @@ if [[ ! -f ~/.local/bin/kubectl ]]; then
     fi
 fi
 
-# Install Docker
+# Install Dokcer
 sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
 
@@ -44,4 +44,29 @@ sudo usermod -aG docker $USER
 
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
-k3d cluster create --config cluster.yml
+k3d cluster create p3 -p "8888:80@loadbalancer"
+
+#Create namespaces and initial config for argo
+kubectl create namespace argocd
+kubectl create namespace dev
+
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side
+
+#wait for argocd to be ready
+kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd
+
+#Forward port for argoCD
+kubectl port-forward svc/argocd-server -n argocd 8080:443 >/dev/null 2>/dev/null & 
+
+sleep 2
+
+#Install ArgoCD CLI
+curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+rm argocd-linux-amd64
+
+#Pass to Argo
+echo $(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d)
+
+#Conf for custom cluster
+kubectl apply -f cluster2.yaml -n argocd
