@@ -9,7 +9,7 @@ spec:
     server: https://kubernetes.default.svc
   source:
     path: confs
-    repoURL: https://github.com/ValiSpac/IoT-vpac.git
+    repoURL: https://github.com/42xannyx/inception-of-things.git
     targetRevision: HEAD
     directory:
       recurse: false
