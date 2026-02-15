@@ -36,6 +36,13 @@ if [[ ! -f ~/.local/bin/kubectl ]]; then
     fi
 fi
 
+if [[ ! -f "/usr/local/bin/argocd" ]]; then 
+	VERSION=$(curl -L -s https://raw.githubusercontent.com/argoproj/argo-cd/stable/VERSION)
+	curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/download/v$VERSION/argocd-linux-amd64
+	sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+	rm argocd-linux-amd64
+fi
+
 # Install Docker
 sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
@@ -44,4 +51,11 @@ sudo usermod -aG docker $USER
 
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
+k3d cluster delete argocluster
+
 k3d cluster create --config cluster.yml
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl wait --for=condition=available --timeout=120s deployment --all
+
+kubectl port-forward svc/argocd-server -n argocd 8080:443
