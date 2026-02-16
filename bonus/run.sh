@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 set -e  
-
 sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
 
@@ -43,11 +42,12 @@ if [[ ! -f "/usr/local/bin/argocd" ]]; then
 	rm argocd-linux-amd64
 fi
 
-# Install Docker
 sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
 
 sudo usermod -aG docker $USER
+
+curl -s https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 | bash
 
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
@@ -57,12 +57,36 @@ k3d cluster create --config k3d-cluster.yml
 kubectl create namespace argocd
 kubectl replace -n argocd --force -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 kubectl wait --for=condition=available --timeout=120s deployment --all -n argocd
-kubectl port-forward svc/argocd-server -n argocd 8080:443 &
 
 kubectl create namespace dev
 kubectl apply -f cluster.yml
 
-PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+helm repo add gitlab https://charts.gitlab.io/
+helm repo update
+helm upgrade --install gitlab gitlab/gitlab \
+  --namespace gitlab \
+  --create-namespace \
+  --timeout 1200s \
+  --set global.hosts.domain=gitlab.local \
+  --set global.edition=ce \
+  --set certmanager-issuer.email=admin@gitlab.local \
+  --set global.ingress.configureCertmanager=false \
+  --set prometheus.install=false \
+  --set gitlab-runner.install=false \
+  --set registry.enabled=false \
+  --set global.grafana.enabled=false \
+  --set nginx-ingress.enabled=false \
+  --set global.kas.enabled=false
+
+kubectl wait --for=condition=available --timeout=900s deployment --all -n gitlab
+
+kubectl port-forward svc/argocd-server -n argocd 8080:443 > /dev/null 2>&1 &
+kubectl port-forward -n gitlab svc/gitlab-webservice-default 8081:8080 > /dev/null 2>&1 &
+
+PASSWORD_GITLAB=$(kubectl -n gitlab get secret gitlab-gitlab-initial-root-password -o jsonpath='{.data.password}' | base64 -d)
+PASSWORD_ARGOCD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 
 echo "Username: admin"
-echo "Password: $PASSWORD"
+echo "ARGOCD Password: $PASSWORD_ARGOCD"
+
+echo "GitLab Password: $PASSWORD_GITLAB"
