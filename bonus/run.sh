@@ -63,25 +63,15 @@ kubectl apply -f cluster.yml
 
 helm repo add gitlab https://charts.gitlab.io/
 helm repo update
-helm upgrade --install gitlab gitlab/gitlab \
-  --namespace gitlab \
-  --create-namespace \
-  --timeout 1200s \
-  --set global.hosts.domain=gitlab.local \
-  --set global.edition=ce \
-  --set certmanager-issuer.email=admin@gitlab.local \
-  --set global.ingress.configureCertmanager=false \
-  --set prometheus.install=false \
-  --set gitlab-runner.install=false \
-  --set registry.enabled=false \
-  --set global.grafana.enabled=false \
-  --set nginx-ingress.enabled=false \
-  --set global.kas.enabled=false
 
-kubectl wait --for=condition=available --timeout=900s deployment --all -n gitlab
+kubectl create namespace gitlab
+kubectl apply -f gitlab-cluster.yml
 
-kubectl port-forward svc/argocd-server -n argocd 8080:443 > /dev/null 2>&1 &
-kubectl port-forward -n gitlab svc/gitlab-webservice-default 8081:8080 > /dev/null 2>&1 &
+kubectl wait --for=condition=complete --timeout=600s job/helm-install-gitlab -n kube-system
+kubectl wait --for=condition=available --timeout=600s deployment --all -n gitlab
+
+kubectl port-forward svc/argocd-server -n argocd 8080:443 &
+kubectl port-forward -n gitlab svc/gitlab-webservice-default 8081:8080 &
 
 PASSWORD_GITLAB=$(kubectl -n gitlab get secret gitlab-gitlab-initial-root-password -o jsonpath='{.data.password}' | base64 -d)
 PASSWORD_ARGOCD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
