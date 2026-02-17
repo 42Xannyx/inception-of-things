@@ -56,7 +56,7 @@ k3d cluster create --config k3d-cluster.yml
 
 kubectl create namespace argocd
 kubectl replace -n argocd --force -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-kubectl wait --for=condition=available --timeout=120s deployment --all -n argocd
+kubectl wait --for=condition=available --timeout=300s deployment --all -n argocd
 
 kubectl create namespace dev
 kubectl apply -f cluster.yml
@@ -71,12 +71,31 @@ kubectl wait --for=condition=complete --timeout=600s job/helm-install-gitlab -n 
 kubectl wait --for=condition=available --timeout=600s deployment --all -n gitlab
 
 kubectl port-forward svc/argocd-server -n argocd 8080:443 &
-kubectl port-forward -n gitlab svc/gitlab-webservice-default 8081:8080 &
+kubectl port-forward -n gitlab svc/gitlab-webservice-default 8181:8181 &
 
 PASSWORD_GITLAB=$(kubectl -n gitlab get secret gitlab-gitlab-initial-root-password -o jsonpath='{.data.password}' | base64 -d)
 PASSWORD_ARGOCD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 
+echo "URL: localhost:8080"
 echo "Username: admin"
 echo "ARGOCD Password: $PASSWORD_ARGOCD"
 
+echo "URL: localhost:8181"
+echo "Username: root"
 echo "GitLab Password: $PASSWORD_GITLAB"
+
+# Inside Pod
+kubectl exec -n gitlab $(kubectl get pods -n gitlab -l app=toolbox -o jsonpath='{.items[0].metadata.name}') -- gitlab-rails runner "
+user = User.find_by_username('root')
+token = user.personal_access_tokens.create(
+  scopes: [:api],
+  name: 'automation-token',
+  expires_at: 365.days.from_now
+)
+token.set_token('root-token')
+token.save!
+puts token.token
+"
+# Exit Pod
+
+curl -H "PRIVATE-TOKEN: root-token" -X POST "http://localhost:8181/api/v4/projects?name=foobartest&visibility=public"
