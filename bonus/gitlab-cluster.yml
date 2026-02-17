@@ -16,8 +16,6 @@ spec:
         https: false
       ingress:
         configureCertmanager: false
-        class: traefik
-        enabled: true
         tls:
           enabled: false
 
