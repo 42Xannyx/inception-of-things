@@ -10,7 +10,7 @@ sudo kubectl apply -f /vagrant/services/app2.yml
 sudo kubectl apply -f /vagrant/services/app3.yml
 sudo kubectl apply -f /vagrant/services/ingress.yml
 
-sudo kubectl wait --for=condition=available --timeout=120s deployment --all
+sudo kubectl wait --for=condition=available --timeout=300s deployment --all
 
 echo "192.168.56.110 app1.com app2.com app3.com" | sudo tee -a /etc/hosts
 
