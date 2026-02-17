@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocluster
+  namespace: argocd
+spec:
+  destination:
+    namespace: dev
+    server: https://kubernetes.default.svc
+  source:
+    path: confs
+    repoURL: http://gitlab-svc.gitlab.svc.cluster.local/root/iot-app.git
+    targetRevision: HEAD
+    directory:
+      recurse: false
+  sources: []
+  project: default
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+      enabled: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-repo
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  type: git
+  url: http://gitlab-svc.gitlab.svc.cluster.local/root/iot-app.git
+  insecure: "true"
