@@ -1,0 +1,37 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: gitlab
+  namespace: kube-system
+spec:
+  chart: gitlab
+  repo: https://charts.gitlab.io/
+  targetNamespace: gitlab
+  version: 9.8.4
+  valuesContent: |-
+    global:
+      edition: ce
+      hosts:
+        domain: localhost
+        https: false
+      ingress:
+        configureCertmanager: false
+        tls:
+          enabled: false
+
+    certmanager-issuer:
+      email: cool@cool.com
+
+    nginx-ingress:
+      enabled: false
+    prometheus:
+      install: false
+    gitlab-runner:
+      install: false
+    registry:
+      enabled: false
+
+    redis:
+      install: true
+    postgresql:
+      install: true
