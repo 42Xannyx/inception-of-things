@@ -10,13 +10,13 @@ if File.exist?('.env.local')
     ENV[key] = value if key && value
   end
 else
-  puts "Warning: env.local file not found!"
+  puts "Warning: .env.local file not found!"
   exit(1)
 end
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "hashicorp-education/ubuntu-24-04"
-  config.vm.box_version = "0.1.0"
+  config.vm.box = "generic/debian12"
+  config.vm.box_version = "4.3.12"
 
   config.vm.define :server do |server_config|
     server_config.vm.network "private_network", ip: "192.168.56.110"
