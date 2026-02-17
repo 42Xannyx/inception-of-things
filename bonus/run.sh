@@ -56,10 +56,11 @@ k3d cluster create --config k3d-cluster.yml
 
 kubectl create namespace argocd
 kubectl replace -n argocd --force -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-kubectl wait --for=condition=available --timeout=300s deployment --all -n argocd
+kubectl wait --for=condition=available --timeout=600s deployment --all -n argocd
 
 kubectl create namespace dev
 kubectl apply -f cluster.yml
+
 
 helm repo add gitlab https://charts.gitlab.io/
 helm repo update
@@ -98,4 +99,26 @@ puts token.token
 "
 # Exit Pod
 
-curl -H "PRIVATE-TOKEN: root-token" -X POST "http://localhost:8181/api/v4/projects?name=foobartest&visibility=public"
+curl -H "PRIVATE-TOKEN: root-token" -X POST "http://localhost:8181/api/v4/projects?name=iot-app&visibility=public"
+curl -s -X POST "http://localhost:8181/api/v4/projects/1/repository/files/hello_world.txt" \
+  -H "PRIVATE-TOKEN: root-token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "branch": "main",
+    "content": "hello world",
+    "commit_message": "Add hello_world.txt"
+  }'
+
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-repo
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  type: git
+  url: http://gitlab-svc.gitlab.svc.cluster.local/root/iot-app.git
+  insecure: "true"
+EOF

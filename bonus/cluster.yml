@@ -8,8 +8,8 @@ spec:
     namespace: dev
     server: https://kubernetes.default.svc
   source:
-    path: confs
-    repoURL: https://github.com/42xannyx/inception-of-things.git
+    path: .
+    repoURL: http://gitlab-svc.gitlab.svc.cluster.local/root/iot-app.git
     targetRevision: HEAD
     directory:
       recurse: false
@@ -20,3 +20,16 @@ spec:
       prune: false
       selfHeal: false
       enabled: true
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-repo
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  type: git
+  url: http://gitlab-svc.gitlab.svc.cluster.local/root/iot-app.git
+  insecure: "true"
+
