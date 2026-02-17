@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -eu pipefail
+set -euo pipefail
 
 sudo apt update
 sudo apt-get install -y tzdata perl curl libatomic1 postfix

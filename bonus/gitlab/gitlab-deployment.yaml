@@ -19,7 +19,7 @@ spec:
       - image: gitlab/gitlab-ce:latest
         name: gitlab-ce
         resources: {}
-      volumeMounts:
+        volumeMounts:
         - name: gitlab-data
           mountPath: /var/opt/gitlab
       volumes:
