@@ -8,8 +8,8 @@ spec:
     namespace: dev
     server: https://kubernetes.default.svc
   source:
-    path: .
-    repoURL: http://gitlab-svc.gitlab.svc.cluster.local/root/iot-app.git
+    path: confs
+    repoURL: https://github.com/ValiSpac/IoT-vpac.git
     targetRevision: HEAD
     directory:
       recurse: false
@@ -20,11 +20,8 @@ spec:
       prune: false
       selfHeal: false
       enabled: true
-<<<<<<<< HEAD:p3/cluster2.yaml
     syncOptions:
       - CreateNamespace=true
-========
->>>>>>>> main:bonus/cluster.yml
 ---
 apiVersion: v1
 kind: Secret
@@ -37,4 +34,3 @@ stringData:
   type: git
   url: http://gitlab-svc.gitlab.svc.cluster.local/root/iot-app.git
   insecure: "true"
-
