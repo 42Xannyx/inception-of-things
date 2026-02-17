@@ -44,6 +44,7 @@ sudo usermod -aG docker $USER
 
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
+k3d cluster delete p3
 k3d cluster create p3 -p "8888:80@loadbalancer"
 
 #Create namespaces and initial config for argo
