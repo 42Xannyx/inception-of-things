@@ -25,7 +25,7 @@ Vagrant.configure("2") do |config|
 
     server_config.vm.provider "virtualbox" do |vb|
       vb.name = "xvoorvaaS"
-      vb.memory = "1024"
+      vb.memory = "2048"
       vb.cpus = "1"
       vb.linked_clone = true
     end
@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
 
     worker_config.vm.provider "virtualbox" do |vb|
       vb.name = "xvoorvaaSW"
-      vb.memory = "1024"
+      vb.memory = "2048"
       vb.cpus = "1"
       vb.linked_clone = true
     end
