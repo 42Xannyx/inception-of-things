@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: p3-deployment
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: p3-deployment
+  template:
+    metadata:
+      labels:
+        app: p3-deployment
+    spec:
+      containers:
+        - name: wil42
+          image: wil42/playground:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8888
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: p3-service
+  namespace: dev
+spec:
+  ports:
+    - port: 8888
+  selector:
+    app: p3-deployment
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: p3-ingress
+  namespace: dev
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: p3-service
+            port:
+              number: 8888
