@@ -13,24 +13,11 @@ spec:
     targetRevision: HEAD
     directory:
       recurse: false
-  sources: []
   project: default
   syncPolicy:
     automated:
-      prune: false
-      selfHeal: false
-      enabled: true
+      prune: true 
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: gitlab-repo
-  namespace: argocd
-  labels:
-    argocd.argoproj.io/secret-type: repository
-stringData:
-  type: git
-  url: http://gitlab-svc.gitlab.svc.cluster.local/root/iot-app.git
-  insecure: "true"
+
