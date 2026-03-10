@@ -34,7 +34,8 @@ Vagrant.configure("2") do |config|
   config.vm.define :worker do |worker_config|
     worker_config.vm.network "private_network", ip: "192.168.56.111"
     worker_config.vm.hostname = "xvoorvaaSW"
-    worker_config.vm.provision "shell", path: "script.sh", env: {"TOKEN" => ENV['TOKEN']}
+    worker_config.vm.provision "shell", path: "script.sh", env: {"TOKEN" => ENV['TOKEN'],
+    "CONTROLLER" => "false"}
 
     worker_config.vm.provider "virtualbox" do |vb|
       vb.name = "xvoorvaaSW"
