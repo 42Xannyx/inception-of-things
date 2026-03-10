@@ -2,6 +2,9 @@
 
 set -e  
 
+sudo rm -f /etc/apt/sources.list.d/docker.sources 1>/dev/null 2<&1
+sudo rm -f /etc/apt/keyrings/docker.asc 1>/dev/null 2>&1
+
 sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
 
@@ -43,12 +46,6 @@ if [[ ! -f "/usr/local/bin/argocd" ]]; then
 	rm argocd-linux-amd64
 fi
 
-# Install Docker
-sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
-
-sudo usermod -aG docker $USER
-
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
 k3d cluster delete p3
@@ -74,7 +71,8 @@ sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
 rm argocd-linux-amd64
 
 #Pass to Argo
-echo $(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d)
+echo "Login: admin"
+echo "Password: $(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d)"
 
 #Conf for custom cluster
-kubectl apply -f cluster2.yaml -n argocd
+kubectl apply -f cluster.yaml -n argocd
