@@ -1,0 +1,72 @@
+repositories:
+  - name: argo
+    url: https://argoproj.github.io/argo-helm
+  - name: gitlab
+    url: https://charts.gitlab.io/
+
+helmDefaults:
+  wait: true
+  timeout: 600
+  atomic: false
+
+releases:
+  - name: argocd
+    namespace: argocd
+    createNamespace: true
+    chart: argo/argo-cd
+    version: "~7"
+    values:
+      - server:
+          service:
+            type: ClusterIP
+          extraArgs:
+            - --insecure
+      - configs:
+          params:
+            server.insecure: true
+
+  - name: gitlab
+    namespace: gitlab
+    createNamespace: true
+    chart: gitlab/gitlab
+    timeout: 1500
+    values:
+      - global:
+          edition: ce
+          hosts:
+            domain: localhost
+            https: false
+
+          ingress:
+            configureCertmanager: false
+            tls:
+              enabled: false
+
+          certmanager:
+            enabled: false
+          kas:
+            enabled: false
+          minio:
+            enabled: true
+          grafana:
+            enabled: false
+          prometheus:
+            install: false
+
+        gitlab-runner:
+          install: false
+        nginx-ingress:
+          enabled: false
+        prometheus:
+          install: false
+
+        gitlab:
+          webservice:
+            minReplicas: 1
+            maxReplicas: 1
+          sidekiq:
+            minReplicas: 1
+            maxReplicas: 1
+          gitlab-shell:
+            minReplicas: 1
+            maxReplicas: 1

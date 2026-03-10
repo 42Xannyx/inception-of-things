@@ -3,8 +3,7 @@ kind: Simple
 metadata:
   name: argocluster
 servers: 1
-agents: 2
-options:
-  runtime:
-    serversMemory: "6g"
-    agentsMemory: "6g"
+ports:
+  - port: 8888:80
+    nodeFilters:
+      - loadbalancer
